@@ -23,7 +23,7 @@ public class AccountController {
     public ResponseEntity<AccountResponse> createAccount(
             @Valid
 @RequestBody CreateAccountRequest request){
-         return ResponseEntity.status(HttpStatus.CREATED).body(accountService.createAccount(request))
+         return ResponseEntity.status(HttpStatus.CREATED).body(accountService.createAccount(request));
 
     }
     @GetMapping("/{accountNumber}")
@@ -42,13 +42,27 @@ accountService.blockAccount(accountNumber);
 return ResponseEntity.ok("Account Blocked Successfully ");
     }
 
+
+
+//    Saga Step 1 deduct balance
+
+
     @PutMapping("/{accountNumber}/deduct")
     public ResponseEntity<String> deductBalance(@PathVariable String accountNumber,@RequestParam BigDecimal amount){
         accountService.deductBalance(accountNumber,amount);
 
         return ResponseEntity.ok("Balance deducted Successfully ");
     }
-    public
+//    Saga Step 4:compensating and transaction
+    @PutMapping("/{accountNumber}/credit")
+    public ResponseEntity<String> creditBalance(
+            @PathVariable String accountNumber,@RequestParam BigDecimal amount){
+            accountService.creditBalance(accountNumber,amount);
+            return ResponseEntity.ok("Fraud Detected Money got credited");
+    }
+
+
+
 
 
 
