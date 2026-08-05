@@ -97,8 +97,29 @@ return accountNumber;
     }
 
     public void deductBalance(String accountNumber, BigDecimal amount) {
+        log.info("Deducting balance from account ",amount);
+        Account account=accountRepository.findByAccountNumber(accountNumber).orElseThrow(()->new RuntimeException("Account not found "));
+        if(account.getStatus()!=AccountStatus.ACTIVE){
+            throw new RuntimeException("Account is not active ");
+        }
+        if(account.getBalance().compareTo(amount)<0){
+            throw new RuntimeException("Insufficient funds ");
+        }
+        account.setBalance(account.getBalance().subtract(amount));
+        accountRepository.save(account);
+        log.info("Balance Updated. New Balance" +account.getBalance());
     }
 
     public void creditBalance(String accountNumber, BigDecimal amount) {
+        log.info("Crediting balance from account ",amount);
+        Account account=accountRepository.findByAccountNumber(accountNumber).orElseThrow(()->new RuntimeException("Account not found "));
+        if(account.getStatus()!=AccountStatus.ACTIVE){
+            throw new RuntimeException("Account is not active ");
+        }
+        account.setBalance(account.getBalance().add(amount));
+        accountRepository.save(account);
+        log.info("Balance Updated. New Balance" +account.getBalance());
+
+
     }
 }
