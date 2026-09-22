@@ -30,32 +30,32 @@ public class AccountService {
         log.info("Creating Account for ",request.getEmail());
         if(accountRepository.existsByEmail(request.getEmail())){
             throw new RuntimeException("account already exist "+request.getEmail());
-
         }
         Account account=new Account();
+        account.setAccountHolderName(request.getAccountHolderName());
         account.setAccountType(request.getAccountType());
         account.setEmail(request.getEmail());
-        account.setAccountHolderName(request.getAccountHolderName());
         account.setPhone(request.getPhone());
-        account.setStatus(AccountStatus.ACTIVE);
-        account.setBalance(request.getInitialDeposit());
-
+        account.setAccountStatus(AccountStatus.ACTIVE);
         account.setAccountNumber(generateAccountNumber());
+        account.setBalance(request.getInitialDeposit());
         account.setDailyTransactionLimit(
-                request.getAccountType()== AccountType.SAVINGS?new BigDecimal("10000"):new BigDecimal("50000")
+                request.getAccountType()==AccountType.SAVINGS
+                ?new BigDecimal("100000"):new BigDecimal("500000")
         );
         Account savedAccount=accountRepository.save(account);
-        log.info("Account Created {}",savedAccount.getAccountNumber());
+        log.info("Account Created :",savedAccount.getAccountNumber());
         return mapToResponse(savedAccount);
     }
+
     private AccountResponse mapToResponse(Account account){
         AccountResponse response=new AccountResponse();
-        response.setId(account.getId());
+        response.setId(String.valueOf(account.getId()));
         response.setAccountNumber(account.getAccountNumber());
         response.setAccountHolderName(account.getAccountHolderName());
         response.setEmail(account.getEmail());
         response.setPhone(account.getPhone());
-        response.setStatus(account.getStatus());
+        response.setStatus(account.getAccountStatus());
         response.setAccountType(account.getAccountType());
         response.setDailyTransactionLimit(account.getDailyTransactionLimit());
         response.setCreatedAt(account.getCreatedAt());
@@ -92,14 +92,15 @@ return accountNumber;
         log.info("Blocking account:{}",accountNumber);
 
         Account account=accountRepository.findByAccountNumber(accountNumber).orElseThrow(()->new RuntimeException("Account not found "));
-        account.setStatus(AccountStatus.BLOCKED);
+        account.setAccountStatus(AccountStatus.BLOCKED);
         accountRepository.save(account);
+        log.info("Account Blocked :",accountNumber);
     }
 
     public void deductBalance(String accountNumber, BigDecimal amount) {
         log.info("Deducting balance from account ",amount);
         Account account=accountRepository.findByAccountNumber(accountNumber).orElseThrow(()->new RuntimeException("Account not found "));
-        if(account.getStatus()!=AccountStatus.ACTIVE){
+        if(account.getAccountStatus()!=AccountStatus.ACTIVE){
             throw new RuntimeException("Account is not active ");
         }
         if(account.getBalance().compareTo(amount)<0){
@@ -113,7 +114,7 @@ return accountNumber;
     public void creditBalance(String accountNumber, BigDecimal amount) {
         log.info("Crediting balance from account ",amount);
         Account account=accountRepository.findByAccountNumber(accountNumber).orElseThrow(()->new RuntimeException("Account not found "));
-        if(account.getStatus()!=AccountStatus.ACTIVE){
+        if(account.getAccountStatus()!=AccountStatus.ACTIVE){
             throw new RuntimeException("Account is not active ");
         }
         account.setBalance(account.getBalance().add(amount));

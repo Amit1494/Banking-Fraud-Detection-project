@@ -22,7 +22,7 @@ public class AccountEventConsumer {
         try{
             String receiver =(String)payload.get("ReceiverAccountNumber");
             BigDecimal amount=new BigDecimal(payload.get("amount").toString());
-            log.info("Crediting account "+receiver+""+amount);
+            log.info("Crediting account "+receiver+" "+amount);
             accountService.creditBalance(receiver,amount);
 
 

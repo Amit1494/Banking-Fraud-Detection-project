@@ -11,16 +11,17 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-@Builder
 @Entity
-@Table(name="accounts")
+@Builder
+@Table(name="account")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Account {
+public class Account{
+
     @Id
     @GeneratedValue(strategy= GenerationType.UUID)
-    private String id;
+    private int id;
 
     @Column(nullable=false,unique=true)
     private String accountNumber;
@@ -33,23 +34,27 @@ public class Account {
 
     @Column(nullable=false)
     private String phone;
-    @Enumerated(EnumType.STRING)
+
     @Column(nullable=false)
+    @Enumerated(EnumType.STRING)
     private AccountType accountType;
 
     @Column(nullable=false)
-    private AccountStatus status;
+    @Enumerated(EnumType.STRING)
+    private AccountStatus accountStatus;
+
+    @Column(nullable=false,precision = 15,scale=2)
+    private BigDecimal balance;
 
     @Column(nullable=false,precision=15,scale=2)
-    private BigDecimal balance;
-    @Column(nullable=false,precision=15,scale=2)
-    private BigDecimal dailyTransactionLimit;
+    private BigDecimal  dailyTransactionLimit;
 
     @CreationTimestamp
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
+
 
 
 }
